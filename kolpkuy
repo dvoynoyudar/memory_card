@@ -1,0 +1,140 @@
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout,QHBoxLayout, QLabel, QGroupBox,QPushButton,QRadioButton,QButtonGroup
+from random import shuffle,randint
+
+class Question():
+    def __init__(self,question,right_answer,wrong1,wrong2,wrong3):
+        self.question = question
+        self.right_answer = right_answer
+        self.wrong1 = wrong1
+        self.wrong2 = wrong2
+        self.wrong3 = wrong3
+
+questions_list = []
+q1 = Question('Государственный язык Бразилии','Португальский','Английский','Испанский','Французский')
+questions_list.append(q1)
+q2 = Question('Какого цвета нет в флаге России',"Зеленый","Красный","Голубой","Синий")
+questions_list.append(q2)
+q3 = Question('Какого ютуб канала не существует',"Vehwqsuy","MendesHD","Сливки Шоу","Ninja")
+questions_list.append(q3)
+q4 = Question('Какого города не существует',"Сурнаг","Мурманск","Нефтеюганск","Москва")
+questions_list.append(q4)
+q5 = Question('Выберите перевод слова work',"работать","учиться","мыть","ловить")
+questions_list.append(q5)
+app = QApplication([])
+win = QWidget()
+win.setWindowTitle('Memory Card')
+win.resize(400,200)
+
+rl_v_line = QVBoxLayout()
+
+vopros = QLabel('Какой национальности не существует?')
+h_line_1 = QHBoxLayout()
+h_line_1.addWidget(vopros,alignment=Qt.AlignCenter)
+rl_v_line.addLayout(h_line_1)
+
+rpyppa = QGroupBox('Варианты ответов')
+h_line_2 = QHBoxLayout()
+h_line_2.addWidget(rpyppa,alignment=Qt.AlignCenter)
+rl_v_line.addLayout(h_line_2)
+
+knopka = QPushButton('Ответить')
+h_line_3 = QHBoxLayout()
+h_line_3.addWidget(knopka,alignment=Qt.AlignCenter)
+rl_v_line.addLayout(h_line_3)
+
+btn_answer1 = QRadioButton('Энцы')
+btn_answer2 = QRadioButton('Смурфы')
+btn_answer3 = QRadioButton('Чулымцы')
+btn_answer4 = QRadioButton('Алеуты')
+
+RadioGroup = QButtonGroup()
+RadioGroup.addButton(btn_answer1)
+RadioGroup.addButton(btn_answer2)
+RadioGroup.addButton(btn_answer3)
+RadioGroup.addButton(btn_answer4)
+
+h_line_1 = QHBoxLayout()
+v_line_2 = QVBoxLayout()
+v_line_3 = QVBoxLayout()
+
+v_line_2.addWidget(btn_answer1)
+v_line_2.addWidget(btn_answer2)
+v_line_3.addWidget(btn_answer3)
+v_line_3.addWidget(btn_answer4)
+
+h_line_1.addLayout(v_line_2)
+h_line_1.addLayout(v_line_3)
+rpyppa.setLayout(h_line_1)
+
+#2 часть - форма ответа
+rpyppa_2 = QGroupBox('Результаты теста')
+nadp_1 = QLabel('Правильно/Неправильно')
+nadp_2 = QLabel('Правильный ответ')
+rl_v_line_4 = QVBoxLayout()
+rl_v_line_4.addWidget(nadp_1,alignment=Qt.AlignCenter)
+rl_v_line_4.addWidget(nadp_2,alignment=Qt.AlignCenter)
+rpyppa_2.setLayout(rl_v_line_4)
+h_line_2.addWidget(rpyppa_2,alignment=Qt.AlignCenter)
+rpyppa_2.hide()
+
+def show_result():
+    rpyppa_2.show()
+    rpyppa.hide()
+    knopka.setText('Следующий вопрос')
+
+def show_question():
+    rpyppa_2.hide()
+    rpyppa.show()
+    knopka.setText('Ответить')
+    RadioGroup.setExclusive(False)
+    btn_answer1.setChecked(False)
+    btn_answer2.setChecked(False)
+    btn_answer3.setChecked(False)
+    btn_answer4.setChecked(False)
+    RadioGroup.setExclusive(True)
+
+answers=[btn_answer1, btn_answer2, btn_answer3, btn_answer4]
+
+def ask(q:Question):
+    shuffle(answers)
+    answers[0].setText(q.right_answer)
+    answers[1].setText(q.wrong1)
+    answers[2].setText(q.wrong2)
+    answers[3].setText(q.wrong3)
+    vopros.setText(q.question)
+    nadp_2.setText(q.right_answer)
+    show_question()
+
+def check_answer():
+    if answers[0].isChecked():
+        nadp_1.setText('Правильно')
+        show_result()
+        win.score += 1
+    elif answers[1].isChecked() or answers[2].isChecked() or answers[3].isChecked():
+        nadp_1.setText('Неправильно')
+        show_result()
+    print('Всего вопросов:', win.total,'Правильных ответов:', win.score,'Рейтинг', win.score / win.total * 100, '%')
+def click_OK():
+    if knopka.text() == "Ответить":
+        check_answer()
+    else:
+        next_question()
+
+def next_question():
+    win.total += 1
+    cur_question = randint(0, len(questions_list) - 1)
+    
+    q = questions_list[cur_question]
+    ask(q)
+
+win.setLayout(rl_v_line)
+
+win.score = 0
+win.total = 0
+
+knopka.clicked.connect(click_OK)
+next_question()
+
+win.show()
+app.exec()
